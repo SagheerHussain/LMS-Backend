@@ -32,8 +32,8 @@ const addCategory = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   try {
-    const categories = await Category.findById(req.params.id, req.body, { new: true });
-    res.status(200).json(categories);
+    const updateCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.status(200).json({ message: "Category updated successfully", updateCategory });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
@@ -42,8 +42,8 @@ const updateCategory = async (req, res) => {
 
 const deleteCategory = async (req, res) => {
   try {
-    const categories = await Category.findById(req.params.id);
-    res.status(200).json(categories);
+    const categories = await Category.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Category deleted successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });

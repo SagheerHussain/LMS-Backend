@@ -1,14 +1,14 @@
 const express = require("express");
 
-const { createReview, updateReview, getReviews, deleteReview } = require("../controllers/reviewsController");
+const { createReview, updateReview, getReviewByBook, deleteReview } = require("../controllers/reviewsController");
 
 const router = express.Router();
 
 const { authenticateToken } = require("../middleware/auth");
 
-router.get("/", getReviews);
+router.get("/review/:id", authenticateToken, getReviewByBook);
 
-router.post("/", authenticateToken,  createReview);
+router.post("/", authenticateToken, createReview);
 
 router.put("/update/:id", updateReview);
 

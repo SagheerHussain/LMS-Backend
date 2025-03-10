@@ -6,7 +6,8 @@ const studentSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     universityId: { type: String, required: true, unique: true },
-    image: { type: String, required: true }, // URL for the image
+    universityIdCardImage: { type: String, required: true }, // ✅ University ID Card Image
+    profilePicture: { type: String, required: true }, // ✅ Profile Picture
     universityName: { type: String, required: true },
     isVerified: { type: Boolean, default: false }, // Admin verification
     borrowedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "BorrowedBook" }],

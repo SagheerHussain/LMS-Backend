@@ -1,9 +1,11 @@
 const Review = require("../modals/reviewsModal");
+const Book = require("../modals/bookModal");
 
 // Get Reviews
-const getReviews = async (req, res) => {
+const getReviewByBook = async (req, res) => {
   try {
-    const reviews = await Review.find().populate("book").populate("student");
+    const book = await Book.findById(req.params.id);
+    const reviews = await Review.find({ book: book._id }).populate("book").populate("student");
     res.status(200).json(reviews);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -59,7 +61,7 @@ const deleteReview = async (req, res) => {
 };
 
 module.exports = {
-  getReviews,
+  getReviewByBook,
   createReview,
   updateReview,
   deleteReview

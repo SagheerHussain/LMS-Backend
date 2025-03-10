@@ -18,24 +18,24 @@ const router = express.Router();
 router.get("/", getAllBooks);
 
 // Get Single Book
-router.get("/:id", getBookById);
+router.get("/book/:id", getBookById);
 
 // Get Books By Search Results
 router.get("/search", searchBooks);
 
 // Get Books By Category
-router.get("/category", getBooksByCategory);
+router.get("/category/:category", getBooksByCategory);
 
 // Get Books By Author
-router.get("/author", getBooksByAuthor);
+router.get("/author/:author", getBooksByAuthor);
 
 // Create Book
 router.post("/", upload.single("image"),  addBook);
 
 // Update Book
-router.put("/:id", updateBook);
+router.put("/update/:id", upload.single("image"), updateBook);
 
 // Delete Book
-router.delete("/:id", deleteBook);
+router.delete("/delete/:id", deleteBook);
 
 module.exports = router;

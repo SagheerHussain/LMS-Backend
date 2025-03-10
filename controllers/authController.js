@@ -7,7 +7,15 @@ const cloudinary = require("../cloudinary");
 const createAccount = async (req, res) => {
   try {
     const { name, email, password, universityId, universityName } = req.body;
-    const imgPath = await cloudinary.uploader.upload(req.file.path); // ✅ Cloudinary URL
+
+    // Cloudinary pr dono images upload karni hain
+    const universityIdCardImagePath = await cloudinary.uploader.upload(
+      req.files["universityIdCardImage"][0].path
+    );
+    const profilePicturePath = await cloudinary.uploader.upload(
+      req.files["profilePicture"][0].path
+    ); // ✅ Cloudinary URL
+
     const isExist = await Student.findOne({ email });
     if (isExist)
       res.json({ message: "A user with this email is already exist" });
@@ -15,11 +23,12 @@ const createAccount = async (req, res) => {
     await bcrypt.genSalt(10, async (err, salt) => {
       await bcrypt.hash(password, salt, async (err, hash) => {
         const newUser = await Student.create({
-          name, 
+          name,
           email,
           password: hash,
           universityId,
-          image: imgPath.url,
+          universityIdCardImage: universityIdCardImagePath.url,
+          profilePicture: profilePicturePath.url,
           universityName,
         });
         res.json({ success: true, user: newUser });
@@ -63,19 +72,19 @@ const loginAccount = async (req, res) => {
 
 const registerAdmin = async (req, res) => {
   try {
-    const { name, email, password, role, status } = req.body;
-    if (!name && !email && !password && !role && !status) {
-        return res.status(400).json({ message: "All fields are required" });
+    const { name, email, password } = req.body;
+    if (!name && !email && !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await Admin.create({
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        status
+      name,
+      email,
+      password: hashedPassword,
+      role: "Admin",
+      status: "PENDING",
     });
 
     res.status(201).json({ success: true, user });
@@ -86,7 +95,7 @@ const registerAdmin = async (req, res) => {
 };
 
 module.exports = {
-    createAccount,
-    loginAccount,
-    registerAdmin
-  };
+  createAccount,
+  loginAccount,
+  registerAdmin,
+};

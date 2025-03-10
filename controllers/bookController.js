@@ -1,10 +1,12 @@
 const Book = require("../modals/bookModal");
-const cloudinary = require("../cloudinary")
+const Category = require("../modals/categoryModal");
+const Author = require("../modals/authorModal");
+const cloudinary = require("../cloudinary");
 
 // ✅ **1. Get All Books**
 const getAllBooks = async (req, res) => {
   try {
-    const books = await Book.find();
+    const books = await Book.find().populate('category').populate('author').populate('reviews');
     res.status(200).json(books);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -32,18 +34,27 @@ const getBookById = async (req, res) => {
 const searchBooks = async (req, res) => {
   try {
     const { keyword } = req.query;
-    if (!keyword)
+    if (!keyword) {
       return res.status(400).json({ message: "Search keyword is required" });
+    }
 
-    const books = await Book.find({
+    // Split keywords into array for multi-word search
+    const words = keyword.split(" "); // ["mini", "manual"]
+
+    // Generate regex for each word
+    const regexQueries = words.map(word => ({
       $or: [
-        { title: { $regex: keyword, $options: "i" } },
-        { description: { $regex: keyword, $options: "i" } },
-      ],
-    });
+        { title: { $regex: word, $options: "i" } },
+        { description: { $regex: word, $options: "i" } }
+      ]
+    }));
+
+    // Find books that match any of the words
+    const books = await Book.find({ $and: regexQueries });
 
     res.status(200).json(books);
   } catch (error) {
+    console.error("Search Error:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -51,12 +62,15 @@ const searchBooks = async (req, res) => {
 // ✅ **4. Filter Books by Category**
 const getBooksByCategory = async (req, res) => {
   try {
-    const { category } = req.query;
-    if (!category)
-      return res.status(400).json({ message: "Category is required" });
+    const { category } = req.params;
 
-    const books = await Book.find({ category });
-    res.status(200).json(books);
+    const isExist = await Category.findOne({ slug: category });
+    if (!isExist)
+      return res.status(400).json({ message: "Category is not found" });
+
+    const books = await Book.find({ category: isExist._id }).populate('category').populate('author').populate('reviews', { populate: { path: "student" } });
+
+    res.status(200).json({ message: books });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -65,12 +79,15 @@ const getBooksByCategory = async (req, res) => {
 // ✅ **5. Filter Books by Author**
 const getBooksByAuthor = async (req, res) => {
   try {
-    const { author } = req.query;
-    if (!author)
-      return res.status(400).json({ message: "Author name is required" });
+    const { author } = req.params;
 
-    const books = await Book.find({ author });
-    res.status(200).json(books);
+    const isExist = await Author.findOne({ slug: author });
+    if (!isExist)
+      return res.status(400).json({ message: "Author is not found" });
+
+    const books = await Book.find({ author: isExist._id }).populate('category').populate('author').populate('reviews', { populate: { path: "student" } });
+
+    res.status(200).json({ message: books });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -92,7 +109,7 @@ const addBook = async (req, res) => {
       summary,
       publishedYear,
       category,
-      color
+      color,
     } = req.body;
 
     const imgPath = await cloudinary.uploader.upload(req.file.path);
@@ -121,15 +138,27 @@ const addBook = async (req, res) => {
 // ✅ **7. Update a Book by ID**
 const updateBook = async (req, res) => {
   try {
-    const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!updatedBook)
+    // Pehle database se existing book nikal lo
+    const existingBook = await Book.findById(req.params.id);
+    if (!existingBook) {
       return res.status(404).json({ message: "Book not found" });
+    }
 
-    res
-      .status(200)
-      .json({ message: "Book updated successfully", book: updatedBook });
+    // Agar naye image file aayi hai, to usko Cloudinary pe upload karo
+    let imageUrl = existingBook.image; // Default: Pehli wali image rahegi
+    if (req.file) {
+      const imgUpload = await cloudinary.uploader.upload(req.file.path);
+      imageUrl = imgUpload.url; // Naya image URL save karo
+    }
+
+    // Book ko update karo, agar naye fields bheje gaye hain to update ho jayein
+    const updatedBook = await Book.findByIdAndUpdate(
+      req.params.id,
+      { ...req.body, image: imageUrl }, // Existing image ya new image ko set karo
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Book updated successfully", book: updatedBook });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

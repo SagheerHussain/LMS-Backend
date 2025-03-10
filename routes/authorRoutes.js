@@ -14,7 +14,7 @@ const router = express.Router();
 router.get("/", getAuthors);
 
 // Get Single Author
-router.get("/:id", getAuthorById);
+router.get("/author/:id", getAuthorById);
 
 // Create Author
 router.post("/", addAuthor);

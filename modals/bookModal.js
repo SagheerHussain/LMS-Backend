@@ -7,7 +7,7 @@ const bookSchema = new mongoose.Schema(
     description: { type: String, required: true },
     rating: { type: Number, default: 0 },
     ISBN: { type: Number, required: true, default: 0 },
-    Binding: { type: String, default: 0 },
+    binding: { type: String, default: 0 },
     totalPages: { type: Number, required: true, default: 0 },
     author: { type: mongoose.Schema.Types.ObjectId, ref: "Author", required: true },
     totalCopies: { type: Number, required: true },

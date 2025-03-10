@@ -14,13 +14,13 @@ const router = express.Router();
 router.get("/", getCategories);
 
 // Get Single Category
-router.get("/:id", getCategoryById);
+router.get("/category/:id", getCategoryById);
 
 // Create Category
 router.post("/", addCategory);
 
 // Update Category
-router.put("/update/:id", updateCategory);
+router.put("/update/:id", updateCategory);  
 
 // Delete Category
 router.delete("/delete/:id", deleteCategory);

@@ -15,22 +15,50 @@ const getAllBorrowedBooks = async (req, res) => {
   }
 };
 
+// ✅ Get Borrowed Requests
+const getAllBorrowedRequests = async (req, res) => {
+  try {
+    const books = await BorrowedRequest.find()
+      .populate("book")
+      .populate("student");
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// ✅ Get Borrowed History
+const getAllBorrowedHistory = async (req, res) => {
+  try {
+    const books = await BorrowedHistory.find()
+      .populate("book")
+      .populate("student");
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 // ✅ Create Request
 const createBorrowRequest = async (req, res) => {
   try {
-    const { studentId, bookId, borrowedDate, dueDate } = req.body;
+    const { studentId, bookId } = req.body;
+    console.log(req.body);
+    const student = await Student.findById({ _id: studentId });
+    console.log(student);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    if (!student.isVerified)
+      return res.status(403).json({ message: "Student is not verified" });
+
     const createRequest = await BorrowedRequest.create({
       student: studentId,
       book: bookId,
-      requestDate,
-      status: "Pending",
     });
-    res
-      .status(200)
-      .json({
-        message: "Borrow request created successfully",
-        data: createRequest,
-      });
+    res.status(200).json({
+      message: "Borrow request created successfully",
+      data: createRequest,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -39,11 +67,13 @@ const createBorrowRequest = async (req, res) => {
 // ✅ Update Borrow Request Status
 const updateBorrowRequestStatus = async (req, res) => {
   try {
-    const { requestId } = req.params;
+    const { id } = req.params;
     const { status } = req.body;
 
     // Find the borrow request
-    const borrowRequest = await BorrowedRequest.findById(requestId).populate("student").populate("book");
+    const borrowRequest = await BorrowedRequest.findById({ _id: id })
+      .populate("student")
+      .populate("book");
     if (!borrowRequest) {
       return res.status(404).json({ message: "Borrow request not found" });
     }
@@ -62,9 +92,11 @@ const updateBorrowRequestStatus = async (req, res) => {
       });
 
       // Delete the request from BorrowedRequest
-      await BorrowedRequest.findByIdAndDelete(requestId);
+      await BorrowedRequest.findByIdAndDelete({ _id: id });
 
-      return res.status(200).json({ message: "Borrow request approved and moved to borrowed books" });
+      return res.status(200).json({
+        message: "Borrow request approved and moved to borrowed books",
+      });
     }
 
     // If Rejected: Move request to BorrowedHistory and delete from BorrowedRequest
@@ -77,19 +109,21 @@ const updateBorrowRequestStatus = async (req, res) => {
       });
 
       // Delete the request from BorrowedRequest
-      await BorrowedRequest.findByIdAndDelete(requestId);
+      await BorrowedRequest.findByIdAndDelete({ _id: id });
 
-      return res.status(200).json({ message: "Borrow request rejected and moved to history" });
+      return res
+        .status(200)
+        .json({ message: "Borrow request rejected and moved to history" });
     }
 
     // Invalid status
-    return res.status(400).json({ message: "Invalid status. Use 'Approved' or 'Rejected'." });
-
+    return res
+      .status(400)
+      .json({ message: "Invalid status. Use 'Approved' or 'Rejected'." });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
 };
-
 
 // ✅ Get Borrowed Books
 const getBorrowedBooks = async (req, res) => {
@@ -164,6 +198,8 @@ module.exports = {
   createBorrowRequest,
   updateBorrowRequestStatus,
   getAllBorrowedBooks,
+  getAllBorrowedRequests,
+  getAllBorrowedHistory,
   getBorrowedBooks,
   getBorrowedRequest,
   getBorrowedHistory,

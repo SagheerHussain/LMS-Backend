@@ -3,6 +3,8 @@ const {
   createBorrowRequest,
   updateBorrowRequestStatus,
   getAllBorrowedBooks,
+  getAllBorrowedRequests,
+  getAllBorrowedHistory,
   getBorrowedBooks,
   getBorrowedRequest,
   getBorrowedHistory
@@ -13,11 +15,13 @@ const { authenticateToken } = require("../middleware/auth");
 const router = express.Router();
 
 // ✅ Borrowed Books & Requests
-router.post("/", createBorrowRequest);
-router.put("/update/:id", updateBorrowRequestStatus);
-router.get("/", getAllBorrowedBooks);
-router.get("/borrowed-books/:studentId", authenticateToken, getBorrowedBooks);
-router.get("/borrowed-requests/:studentId", authenticateToken, getBorrowedRequest);
-router.get("/borrow-history/:studentId", authenticateToken, getBorrowedHistory);
+router.post("/", authenticateToken, createBorrowRequest);
+router.put("/update/:id", authenticateToken, updateBorrowRequestStatus);
+router.get("/borrowed-books", authenticateToken, getAllBorrowedBooks);
+router.get("/borrowed-requests", authenticateToken, getAllBorrowedRequests);
+router.get("/borrowed-history", authenticateToken, getAllBorrowedHistory);
+router.get("/borrowed-books/:id", authenticateToken, getBorrowedBooks);
+router.get("/borrowed-requests/:id", authenticateToken, getBorrowedRequest);
+router.get("/borrowed-history/:id", authenticateToken, getBorrowedHistory);
 
 module.exports = router;
