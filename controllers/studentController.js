@@ -72,8 +72,8 @@ const updateStudentProfile = async (req, res) => {
 
 const deleteStudentAccount = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    await Student.findByIdAndDelete(studentId);
+    const { id } = req.params;
+    await Student.findByIdAndDelete({_id: id });
     res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

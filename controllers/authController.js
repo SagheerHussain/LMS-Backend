@@ -43,7 +43,6 @@ const loginAccount = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    console.log("Login Attempt:", email, password);
     const user = await Student.findOne({ email });
 
     if (!user) {
