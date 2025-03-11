@@ -49,8 +49,27 @@ const searchBooks = async (req, res) => {
       ]
     }));
 
-    // Find books that match any of the words
-    const books = await Book.find({ $and: regexQueries });
+    // Find categories matching the keyword
+    const matchingCategories = await Category.find({
+      name: { $regex: keyword, $options: "i" }
+    });
+
+    // Extract category IDs
+    const categoryIds = matchingCategories.map(cat => cat._id);
+
+    // Include category search in query
+    const books = await Book.find({
+      $or: [
+        { $and: regexQueries }, // Match title & description
+        { category: { $in: categoryIds } } // Match category
+      ]
+    })
+      .populate("category")
+      .populate("author")
+      .populate({
+        path: "reviews",
+        populate: { path: "student" }
+      });
 
     res.status(200).json(books);
   } catch (error) {
@@ -58,6 +77,7 @@ const searchBooks = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // ✅ **4. Filter Books by Category**
 const getBooksByCategory = async (req, res) => {
