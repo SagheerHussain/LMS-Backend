@@ -15,8 +15,8 @@ const getStudents = async (req, res) => {
 
 const getStudentDetails = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    const student = await Student.findById(studentId).select("-password"); // Password hide karne ke liye
+    const { id } = req.params;
+    const student = await Student.findById(id).select("-password"); // Password hide karne ke liye
     if (!student) return res.status(404).json({ message: "Student not found" });
 
     res.status(200).json(student);
@@ -28,7 +28,8 @@ const getStudentDetails = async (req, res) => {
 const updateStudentProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, password, universityId, universityName } = req.body;
+    const { name, email, password, universityId, universityName, isVerified } =
+      req.body;
 
     const isExist = await Student.findById(id);
     if (!isExist) return res.status(404).json({ message: "Student not found" });
@@ -36,35 +37,40 @@ const updateStudentProfile = async (req, res) => {
     let universityIdCardImagePath = isExist.universityIdCardImage;
     let profilePicturePath = isExist.profilePicture;
 
-    if (req.files["universityIdCardImage"].length > 0) {
+    if (req.files && req.files["universityIdCardImage"].length > 0) {
       const imgUpload = await cloudinary.uploader.upload(
         req.files["universityIdCardImage"][0].path
       );
       universityIdCardImagePath = imgUpload.url;
     }
 
-    if (req.files["profilePicture"].length > 0) {
+    if (req.files && req.files["profilePicture"].length > 0) {
       const imgUpload = await cloudinary.uploader.upload(
         req.files["profilePicture"][0].path
       );
       profilePicturePath = imgUpload.url;
     }
+    
+    const updatedStudent = await Student.findByIdAndUpdate(
+      { _id: id },
+      {
+        name,
+        email,
+        password,
+        universityId,
+        universityName,
+        universityIdCardImage: universityIdCardImagePath,
+        profilePicture: profilePicturePath,
+        isVerified,
+      },
+      {
+        new: true,
+      }
+    );
 
-    const student = await Student.findByIdAndUpdate(id, {
-      name,
-      email,
-      password,
-      universityId,
-      universityName,
-      universityIdCardImage: universityIdCardImagePath,
-      profilePicture: profilePicturePath,
-    }, {
-      new: true,
-    });
+    if (!updatedStudent) return res.status(404).json({ message: "Student not Updated" });
 
-    if (!student) return res.status(404).json({ message: "Student not found" });
-
-    res.status(200).json({ message: "Profile updated successfully", student });
+    res.status(200).json({ message: "Profile updated successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -73,7 +79,7 @@ const updateStudentProfile = async (req, res) => {
 const deleteStudentAccount = async (req, res) => {
   try {
     const { id } = req.params;
-    await Student.findByIdAndDelete({_id: id });
+    await Student.findByIdAndDelete({ _id: id });
     res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });

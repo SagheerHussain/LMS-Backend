@@ -56,6 +56,7 @@ const createBorrowRequest = async (req, res) => {
       book: bookId,
     });
     res.status(200).json({
+      success: true,
       message: "Borrow request created successfully",
       data: createRequest,
     });
