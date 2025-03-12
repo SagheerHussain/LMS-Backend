@@ -7,7 +7,10 @@ const {
   getAllBorrowedHistory,
   getBorrowedBooks,
   getBorrowedRequest,
-  getBorrowedHistory
+  getBorrowedHistory,
+  deleteBorrowedBook,
+  deleteBorrowedRequest,
+  deleteBorrowedHistory
 } = require("../controllers/borrowedController");
 
 const { authenticateToken } = require("../middleware/auth");
@@ -23,5 +26,8 @@ router.get("/borrowed-history", authenticateToken, getAllBorrowedHistory);
 router.get("/borrowed-books/:id", authenticateToken, getBorrowedBooks);
 router.get("/borrowed-requests/:id", authenticateToken, getBorrowedRequest);
 router.get("/borrowed-history/:id", authenticateToken, getBorrowedHistory);
+router.delete("/borrowed-books/delete/:id", authenticateToken, deleteBorrowedBook);
+router.delete("/borrowed-requests/delete/:id", authenticateToken, deleteBorrowedRequest);
+router.delete("/borrowed-history/delete/:id", authenticateToken, deleteBorrowedHistory);
 
 module.exports = router;

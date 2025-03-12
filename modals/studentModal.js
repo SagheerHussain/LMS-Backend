@@ -11,7 +11,8 @@ const studentSchema = new mongoose.Schema(
     universityName: { type: String, required: true },
     isVerified: { type: Boolean, default: false }, // Admin verification
     borrowedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: "BorrowedBook" }],
-    borrowRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "BorrowRequest" }],
+    borrowedRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: "BorrowRequest" }],
+    borrowedHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: "BorrowedHistory" }],
   },
   { timestamps: true }
 );

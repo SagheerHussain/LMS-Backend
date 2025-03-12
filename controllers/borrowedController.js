@@ -129,14 +129,18 @@ const updateBorrowRequestStatus = async (req, res) => {
 // ✅ Get Borrowed Books
 const getBorrowedBooks = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    const student = await Student.findById(studentId).populate(
-      "borrowedBooks.book"
+    const { id } = req.params;
+    const student = await Student.findById({ _id: id }).populate(
+      "borrowedBooks"
     );
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-    res.status(200).json(student.borrowedBooks);
+    const borrowedBooks = await BorrowedBook.find({ student: id }).populate(
+      "book"
+    );
+
+    res.status(200).json({ data: borrowedBooks, message: "Borrowed Books" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -145,14 +149,18 @@ const getBorrowedBooks = async (req, res) => {
 // ✅ Get Borrowed Requests
 const getBorrowedRequest = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    const student = await Student.findById(studentId).populate(
-      "borrowRequests.book"
+    const { id } = req.params;
+    const student = await Student.findById({ _id: id }).populate(
+      "borrowedRequests"
     );
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-    res.status(200).json(student.borrowRequests);
+    const borrowedRequests = await BorrowedRequest.find({ student: id }).populate(
+      "book"
+    );
+
+    res.status(200).json({ data: borrowedRequests, message: "Borrowed Requests" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -185,11 +193,51 @@ setInterval(moveExpiredBooksToHistory, 24 * 60 * 60 * 1000);
 // ✅ Get Borrowed History
 const getBorrowedHistory = async (req, res) => {
   try {
-    const { studentId } = req.params;
-    const history = await BorrowedHistory.find({ student: studentId }).populate(
+    const { id } = req.params;
+    const student = await Student.findById({ _id: id }).populate(
+      "borrowedHistory"
+    );
+
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    const borrowedHistory = await BorrowedHistory.find({ student: id }).populate(
       "book"
     );
-    res.status(200).json(history);
+
+    res.status(200).json({ data: borrowedHistory, message: "Borrowed History" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Delete Borrowed Books
+const deleteBorrowedBook = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedBook = await BorrowedBook.findByIdAndDelete(id);
+    res.status(200).json({ message: "Borrowed book deleted successfully", data: deletedBook });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Delete Borrowed Requests
+const deleteBorrowedRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedRequest = await BorrowedRequest.findByIdAndDelete(id);
+    res.status(200).json({ message: "Borrowed request deleted successfully", data: deletedRequest });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+// Delete Borrowed History
+const deleteBorrowedHistory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedHistory = await BorrowedHistory.findByIdAndDelete(id);
+    res.status(200).json({ message: "Borrowed history deleted successfully", data: deletedHistory });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -204,4 +252,7 @@ module.exports = {
   getBorrowedBooks,
   getBorrowedRequest,
   getBorrowedHistory,
+  deleteBorrowedBook,
+  deleteBorrowedRequest,
+  deleteBorrowedHistory,
 };
