@@ -149,7 +149,7 @@ const addBook = async (req, res) => {
       color,
       image: imgPath.url,
     });
-    res.status(201).json({ message: "Book added successfully", book: book });
+    res.status(201).json({ success: true, message: "Book added successfully", book: book });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
