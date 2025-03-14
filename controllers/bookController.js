@@ -165,7 +165,7 @@ const updateBook = async (req, res) => {
     }
 
     // Agar naye image file aayi hai, to usko Cloudinary pe upload karo
-    let imageUrl = existingBook.image; // Default: Pehli wali image rahegi
+    let imageUrl = req.body.image; // Default: Pehli wali image rahegi
     if (req.file) {
       const imgUpload = await cloudinary.uploader.upload(req.file.path);
       imageUrl = imgUpload.url; // Naya image URL save karo

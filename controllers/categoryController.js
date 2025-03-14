@@ -23,7 +23,7 @@ const getCategoryById = async (req, res) => {
 const addCategory = async (req, res) => {
   try {
     const addCategory = await Category.create(req.body);
-    res.status(200).json(addCategory);
+    res.status(200).json({ success: true, message: "Category added successfully", category: addCategory });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });
@@ -33,7 +33,7 @@ const addCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const updateCategory = await Category.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json({ message: "Category updated successfully", updateCategory });
+    res.status(200).json({ message: "Category updated successfully", update: updateCategory, success: true });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.message });

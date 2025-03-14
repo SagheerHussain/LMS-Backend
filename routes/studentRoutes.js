@@ -4,6 +4,7 @@ const {
   getStudentDetails,
   updateStudentProfile,
   deleteStudentAccount,
+  updateAccountRequestStatus,
   getAccountRequests
 } = require("../controllers/studentController");
 
@@ -16,7 +17,8 @@ const router = express.Router();
 // ✅ Student Account Management
 router.get("/", getStudents);
 router.get("/account-requests", getAccountRequests);
-router.get("/student/:id", authenticateToken, getStudentDetails);
+router.put("/update-status/:id", updateAccountRequestStatus);
+router.get("/student/:id", getStudentDetails);
 router.put("/update/:id",  upload.fields([
   { name: "universityIdCardImage", maxCount: 1 },
   { name: "profilePicture", maxCount: 1 },
