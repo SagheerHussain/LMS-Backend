@@ -70,6 +70,7 @@ const loginAccount = async (req, res) => {
 };
 
 const registerAdmin = async (req, res) => {
+  console.log(req.body);  
   try {
     const { name, email, password } = req.body;
     if (!name && !email && !password) {
@@ -86,7 +87,7 @@ const registerAdmin = async (req, res) => {
       status: "PENDING",
     });
 
-    res.status(201).json({ success: true, user });
+    res.status(201).json({ success: true, admin: user });
   } catch (error) {
     console.error("Registration Error:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
