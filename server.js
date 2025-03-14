@@ -20,10 +20,12 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const authorRoutes = require("./routes/authorRoutes");
 const reviewRoutes = require("./routes/reviewsRoutes");
 const borrowedRoutes = require("./routes/borrowedRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/authors", authorRoutes);

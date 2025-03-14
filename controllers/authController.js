@@ -43,13 +43,14 @@ const loginAccount = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await Student.findOne({ email });
+    const user = await Student.findOne({ email }) || await Admin.findOne({ email });
 
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
+
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {

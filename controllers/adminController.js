@@ -1,6 +1,6 @@
-const { Admin } = require("mongodb");
+const Admin = require("../modals/adminModal");
 
-const getAdmins = async () => {
+const getAdmins = async (req, res) => {
   try {
     const admin = await Admin.find({});
     return res.status(200).json({ success: true, admin });
@@ -9,7 +9,18 @@ const getAdmins = async () => {
   }
 };
 
-const updateAdmin = async () => {
+const getAdminById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const admin = await Admin.findById({ _id: id });
+    if (!admin) return res.status(404).json({ success: false, message: "Admin not found" });
+    return res.status(200).json({ success: true, admin });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+const updateAdmin = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, email, password, status } = req.body;
@@ -24,18 +35,19 @@ const updateAdmin = async () => {
   }
 };
 
-const deleteAdmin = async () => {
+const deleteAdmin = async (req, res) => {
   try {
     const { id } = req.params;
     await Admin.findByIdAndDelete({ _id: id });
     return res.status(200).json({ success: true, message: "Admin deleted" });
   } catch (error) {
-    return error;
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
 module.exports = {
-    getAdmins,
-    updateAdmin,
-    deleteAdmin
-}
+  getAdmins,
+  getAdminById,
+  updateAdmin,
+  deleteAdmin,
+};
