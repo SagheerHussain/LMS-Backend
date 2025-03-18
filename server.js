@@ -14,20 +14,18 @@ const allowedOrigins = [
 
 // Apply Middleware
 app.use(
-  cors(
-    cors({
-      origin: function (origin, callback) {
-        // Allow requests with no origin (like Postman)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        } else {
-          return callback(new Error("Not allowed by CORS"));
-        }
-      },
-      credentials: true, // If using cookies/token headers
-    })
-  )
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // If using cookies/token headers
+  })
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
