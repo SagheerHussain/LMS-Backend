@@ -9,16 +9,25 @@ const app = express();
 // Allowed Origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://library-management-system-nu-fawn.vercel.app/",
+  "https://library-management-system-nu-fawn.vercel.app"
 ];
 
-// Apply Middleware
+// Middlewares
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // If using cookies/token headers
   })
 );
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
