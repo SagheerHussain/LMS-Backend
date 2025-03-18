@@ -22,6 +22,15 @@ const getStudentsLength = async (req, res) => {
   }
 }
 
+const getUnverifiedStudentsLength = async (req, res) => {
+  try {
+    const unverifiedStudents = await Student.countDocuments({ isVerified: false });
+    res.status(200).json({ totalUnverifiedStudents: unverifiedStudents });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getStudentDetails = async (req, res) => {
   try {
     const { id } = req.params;
@@ -142,6 +151,7 @@ const deleteStudentAccount = async (req, res) => {
 module.exports = {
   getStudents,
   getStudentsLength,
+  getUnverifiedStudentsLength,
   getStudentDetails,
   getAccountRequests,
   updateStudentProfile,

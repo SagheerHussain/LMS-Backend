@@ -170,6 +170,16 @@ const getBorrowedRequest = async (req, res) => {
   }
 };
 
+// Get Length of Borrowed Request
+const getBorrowedRequestLength = async (req, res) => {
+  try {
+    const borrowedRequests = await BorrowedRequest.countDocuments();
+    res.status(200).json({ totalBorrowedRequests: borrowedRequests });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 // ✅ Move Expired Borrowed Books to History
 const moveExpiredBooksToHistory = async (req, res) => {
   try {
@@ -287,6 +297,7 @@ const deleteBorrowedHistory = async (req, res) => {
 module.exports = {
   createBorrowRequest,
   updateBorrowRequestStatus,
+  getBorrowedRequestLength,
   moveExpiredBooksToHistory,
   getAllBorrowedBooks,
   getAllBorrowedRequests,
