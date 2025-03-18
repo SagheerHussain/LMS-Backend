@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getStudents,
+  getStudentsLength,
   getStudentDetails,
   updateStudentProfile,
   deleteStudentAccount,
@@ -16,6 +17,7 @@ const router = express.Router();
 
 // ✅ Student Account Management
 router.get("/", getStudents);
+router.get("/length", getStudentsLength);
 router.get("/account-requests", getAccountRequests);
 router.put("/update-status/:id", updateAccountRequestStatus);
 router.get("/student/:id", getStudentDetails);

@@ -13,6 +13,15 @@ const getStudents = async (req, res) => {
   }
 };
 
+const getStudentsLength = async (req, res) => {
+  try {
+    const totalStudents = await Student.countDocuments(); // It counts total number of documents
+    res.status(200).json({ totalStudents: totalStudents });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 const getStudentDetails = async (req, res) => {
   try {
     const { id } = req.params;
@@ -132,6 +141,7 @@ const deleteStudentAccount = async (req, res) => {
 
 module.exports = {
   getStudents,
+  getStudentsLength,
   getStudentDetails,
   getAccountRequests,
   updateStudentProfile,

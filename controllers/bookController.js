@@ -13,6 +13,16 @@ const getAllBooks = async (req, res) => {
   }
 };
 
+// Get Total Books Length
+const getBooksLength = async (req, res) => {
+  try {
+    const totalBooks = await Book.countDocuments(); // It counts total number of documents
+    res.status(200).json({ totalBooks: totalBooks });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 // ✅ **2. Get Single Book by ID**
 const getBookById = async (req, res) => {
   try {
@@ -200,6 +210,7 @@ const deleteBook = async (req, res) => {
 module.exports = {
   getAllBooks,
   getBookById,
+  getBooksLength,
   searchBooks,
   getBooksByCategory,
   getBooksByAuthor,
