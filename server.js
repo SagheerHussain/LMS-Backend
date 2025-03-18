@@ -7,7 +7,7 @@ const { dbConnection } = require("./config/config");
 const app = express();
 
 // Allowed Origins
-const allowedOrigins = ["http://localhost:5173", "https://lms-backend-three-dusky.vercel.app/"];
+const allowedOrigins = ["http://localhost:5173", "https://library-management-system-nu-fawn.vercel.app/"];
 
 const corsOptions = {
     origin: function (origin, callback) {
