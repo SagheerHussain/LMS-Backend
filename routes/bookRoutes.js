@@ -3,6 +3,7 @@ const upload = require("../upload");
 
 const {
   getAllBooks,
+  getBooksLength,
   getBookById,
   searchBooks,
   getBooksByCategory,
@@ -16,6 +17,9 @@ const router = express.Router();
 
 // Get All Books
 router.get("/", getAllBooks);
+
+// Get Total Books Length
+router.get("/length", getBooksLength);
 
 // Get Single Book
 router.get("/book/:id", getBookById);
