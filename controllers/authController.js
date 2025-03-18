@@ -95,8 +95,66 @@ const registerAdmin = async (req, res) => {
   }
 };
 
+const forgetPassword = async (req, res) => {
+  try {
+      const { email } = req.body;
+      const user = await Student.findOne({ email }) || await Admin.findOne({ email });
+      if (!user) res.status(404).json({ message: "User is not exist", success: false });
+      else {
+          const token = await jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: "1d" });
+
+          const transporter = nodemailer.createTransport({
+              service: 'gmail',
+              secure: true,
+              auth: {
+                  user: `${process.env.MY_GMAIL}`,
+                  pass: `${process.env.MY_PASSWORD}`
+              }
+          });
+
+          const mailOptions = {
+              from: `${process.env.MY_GMAIL}`,
+              to: email,
+              subject: 'Reset Your Password',
+              text: `Click on this link to reset your password : http://localhost:5173/reset-password/${token}`
+          };
+
+          await transporter.sendMail(mailOptions);
+
+          res.status(200).json({ message: "Verification Link Has Been Send To Your Email", success: true });
+      }
+  } catch (error) {
+      res.status(404).json({ message: "Something Went Wrong", success: false });
+  }
+}
+
+const resetPassword = async (req, res) => {
+  try {
+      const { token } = req.params;
+      const { password } = req.body;
+
+      const decode = await jwt.verify(token, process.env.JWT_KEY);
+      console.log(token, password, decode)
+      const user = await Student.findOne({ email: decode.email }) || await Admin.findOne({ email: decode.email });
+
+      if (user) {
+          const newpassword = await bcrypt.hash(password, 12);
+          const updatedUser = await Student.findOneAndUpdate({ email: decode.email }, { password: newpassword });
+          updatedUser.save();
+          res.status(200).json({ message: "Password Has Been Saved Succcessfully", success: true });
+      } else {
+          res.status(200).json({ message: "User not found", success: false });
+      }
+
+  } catch (error) {
+      res.status(404).json({ message: "Something Went Wrong", success: false });
+  }
+}
+
 module.exports = {
   createAccount,
   loginAccount,
   registerAdmin,
+  forgetPassword,
+  resetPassword
 };

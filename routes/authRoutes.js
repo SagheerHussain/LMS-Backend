@@ -3,6 +3,8 @@ const {
   createAccount,
   loginAccount,
   registerAdmin,
+  forgetPassword,
+  resetPassword
 } = require("../controllers/authController");
 const upload = require("../upload");
 
@@ -19,5 +21,7 @@ router.post(
 );
 router.post("/login", loginAccount);
 router.post("/admin", registerAdmin);
+router.post("/forget-password", forgetPassword);
+router.post("/reset-password/:token", resetPassword);
 
 module.exports = router;

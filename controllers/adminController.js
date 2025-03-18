@@ -45,6 +45,17 @@ const deleteAdmin = async (req, res) => {
   }
 };
 
+const updatePaymentMethod = async (req, res) => {
+  try {
+      const { method } = req.body;
+      const updatedPaymentMethod = await PaymentMethod.findByIdAndUpdate(req.params.id, { method }, { new: true });
+      if (!updatedPaymentMethod) return res.status(404).json({ message: 'Payment method not found' });
+      res.json({ message: 'Payment method updated successfully', paymentMethod: updatedPaymentMethod });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   getAdmins,
   getAdminById,
