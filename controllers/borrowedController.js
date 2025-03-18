@@ -113,9 +113,10 @@ const updateBorrowRequestStatus = async (req, res) => {
       // Delete the request from BorrowedRequest
       await BorrowedRequest.findByIdAndDelete({ _id: id });
 
-      return res
-        .status(200)
-        .json({ success:true, message: "Borrow request rejected and moved to history" });
+      return res.status(200).json({
+        success: true,
+        message: "Borrow request rejected and moved to history",
+      });
     }
 
     // Invalid status
@@ -128,7 +129,7 @@ const updateBorrowRequestStatus = async (req, res) => {
 };
 
 // ✅ Get Borrowed Books
-const getBorrowedBooks = async (req, res) => { 
+const getBorrowedBooks = async (req, res) => {
   try {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
@@ -170,28 +171,54 @@ const getBorrowedRequest = async (req, res) => {
 };
 
 // ✅ Move Expired Borrowed Books to History
-const moveExpiredBooksToHistory = async () => {
+const moveExpiredBooksToHistory = async (req, res) => {
   try {
-    const expiredBooks = await BorrowedBook.find({
-      dueDate: { $lt: new Date() },
-    });
-    for (let book of expiredBooks) {
-      await BorrowedHistory.create({
-        student: book.student,
-        book: book.book,
-        borrowedDate: book.borrowedDate,
-        dueDate: book.dueDate,
-      });
-      await BorrowedBook.findByIdAndDelete(book._id);
+    const { id } = req.params;
+
+    // Step 1: Check if student exists
+    const student = await Student.findById({ _id: id });
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // Step 2: Find all borrowed books of the student
+    const borrowedBooks = await BorrowedBook.find({ student: id });
+
+    let movedCount = 0; // To count how many books moved to history
+
+    for (let book of borrowedBooks) {
+      // Step 3: Check if due date has expired
+      if (book.dueDate < new Date()) {
+        // Step 4: Move to BorrowedHistory
+        await BorrowedHistory.create({
+          student: book.student,
+          book: book.book,
+          borrowedDate: book.borrowedDate,
+          dueDate: book.dueDate,
+        });
+
+        // Step 5: Remove from BorrowedBook
+        await BorrowedBook.findByIdAndDelete(book._id);
+        movedCount++;
+      }
     }
-    console.log("Expired borrowed books moved to history.");
+
+    if (movedCount > 0) {
+      return res.status(200).json({
+        success: true,
+        message: `${movedCount} expired books moved to history.`,
+      });
+    } else {
+      return res.status(200).json({
+        success: true,
+        message: "No expired books found for this student.",
+      });
+    }
   } catch (error) {
-    console.error("Error moving books to history:", error);
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error });
   }
 };
-
-// Run the function periodically (every 24 hours)
-setInterval(moveExpiredBooksToHistory, 24 * 60 * 60 * 1000);
 
 // ✅ Get Borrowed History
 const getBorrowedHistory = async (req, res) => {
@@ -220,12 +247,10 @@ const deleteBorrowedBook = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedBook = await BorrowedBook.findByIdAndDelete(id);
-    res
-      .status(200)
-      .json({
-        message: "Borrowed book deleted successfully",
-        data: deletedBook,
-      });
+    res.status(200).json({
+      message: "Borrowed book deleted successfully",
+      data: deletedBook,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -236,12 +261,10 @@ const deleteBorrowedRequest = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedRequest = await BorrowedRequest.findByIdAndDelete(id);
-    res
-      .status(200)
-      .json({
-        message: "Borrowed request deleted successfully",
-        data: deletedRequest,
-      });
+    res.status(200).json({
+      message: "Borrowed request deleted successfully",
+      data: deletedRequest,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -252,12 +275,10 @@ const deleteBorrowedHistory = async (req, res) => {
   try {
     const { id } = req.params;
     const deletedHistory = await BorrowedHistory.findByIdAndDelete(id);
-    res
-      .status(200)
-      .json({
-        message: "Borrowed history deleted successfully",
-        data: deletedHistory,
-      });
+    res.status(200).json({
+      message: "Borrowed history deleted successfully",
+      data: deletedHistory,
+    });
   } catch (error) {
     res.status(500).json({ message: "Server error", error });
   }
@@ -266,6 +287,7 @@ const deleteBorrowedHistory = async (req, res) => {
 module.exports = {
   createBorrowRequest,
   updateBorrowRequestStatus,
+  moveExpiredBooksToHistory,
   getAllBorrowedBooks,
   getAllBorrowedRequests,
   getAllBorrowedHistory,

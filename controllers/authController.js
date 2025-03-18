@@ -3,6 +3,7 @@ const Admin = require("../modals/adminModal");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("../cloudinary");
+const nodemailer = require("nodemailer");
 
 const createAccount = async (req, res) => {
   try {
@@ -43,14 +44,14 @@ const loginAccount = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await Student.findOne({ email }) || await Admin.findOne({ email });
+    const user =
+      (await Student.findOne({ email })) || (await Admin.findOne({ email }));
 
     if (!user) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
 
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
@@ -71,7 +72,7 @@ const loginAccount = async (req, res) => {
 };
 
 const registerAdmin = async (req, res) => {
-  console.log(req.body);  
+  console.log(req.body);
   try {
     const { name, email, password } = req.body;
     if (!name && !email && !password) {
@@ -97,64 +98,81 @@ const registerAdmin = async (req, res) => {
 
 const forgetPassword = async (req, res) => {
   try {
-      const { email } = req.body;
-      const user = await Student.findOne({ email }) || await Admin.findOne({ email });
-      if (!user) res.status(404).json({ message: "User is not exist", success: false });
-      else {
-          const token = await jwt.sign({ email }, process.env.JWT_KEY, { expiresIn: "1d" });
+    const { email } = req.body;
+    const user =
+      (await Student.findOne({ email })) || (await Admin.findOne({ email }));
+    if (!user)
+      res.status(404).json({ message: "User is not exist", success: false });
 
-          const transporter = nodemailer.createTransport({
-              service: 'gmail',
-              secure: true,
-              auth: {
-                  user: `${process.env.MY_GMAIL}`,
-                  pass: `${process.env.MY_PASSWORD}`
-              }
-          });
+    const token = await jwt.sign({ email }, process.env.JWT_KEY, {
+      expiresIn: "1d",
+    });
 
-          const mailOptions = {
-              from: `${process.env.MY_GMAIL}`,
-              to: email,
-              subject: 'Reset Your Password',
-              text: `Click on this link to reset your password : http://localhost:5173/reset-password/${token}`
-          };
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      secure: true,
+      auth: {
+        user: `${process.env.MY_GMAIL}`,
+        pass: `${process.env.MY_PASSWORD}`,
+      },
+    });
 
-          await transporter.sendMail(mailOptions);
+    const mailOptions = {
+      from: `${process.env.MY_GMAIL}`,
+      to: email,
+      subject: "Reset Your Password",
+      text: `Click on this link to reset your password : http://localhost:5173/reset-password/${token}`,
+    };
 
-          res.status(200).json({ message: "Verification Link Has Been Send To Your Email", success: true });
-      }
+    await transporter.sendMail(mailOptions);
+
+    res
+      .status(200)
+      .json({
+        message: "Verification Link Has Been Send To Your Email",
+        success: true,
+      });
   } catch (error) {
-      res.status(404).json({ message: "Something Went Wrong", success: false });
+    res.status(404).json({ message: "Something Went Wrong", success: false });
   }
-}
+};
 
 const resetPassword = async (req, res) => {
   try {
-      const { token } = req.params;
-      const { password } = req.body;
+    const { token } = req.params;
+    const { password } = req.body;
 
-      const decode = await jwt.verify(token, process.env.JWT_KEY);
-      console.log(token, password, decode)
-      const user = await Student.findOne({ email: decode.email }) || await Admin.findOne({ email: decode.email });
+    const decode = await jwt.verify(token, process.env.JWT_KEY);
+    console.log(token, password, decode);
+    const user =
+      (await Student.findOne({ email: decode.email })) ||
+      (await Admin.findOne({ email: decode.email }));
 
-      if (user) {
-          const newpassword = await bcrypt.hash(password, 12);
-          const updatedUser = await Student.findOneAndUpdate({ email: decode.email }, { password: newpassword });
-          updatedUser.save();
-          res.status(200).json({ message: "Password Has Been Saved Succcessfully", success: true });
-      } else {
-          res.status(200).json({ message: "User not found", success: false });
-      }
-
+    if (user) {
+      const newpassword = await bcrypt.hash(password, 12);
+      const updatedUser = await Student.findOneAndUpdate(
+        { email: decode.email },
+        { password: newpassword }
+      );
+      updatedUser.save();
+      res
+        .status(200)
+        .json({
+          message: "Password Has Been Saved Succcessfully",
+          success: true,
+        });
+    } else {
+      res.status(200).json({ message: "User not found", success: false });
+    }
   } catch (error) {
-      res.status(404).json({ message: "Something Went Wrong", success: false });
+    res.status(404).json({ message: "Something Went Wrong", success: false });
   }
-}
+};
 
 module.exports = {
   createAccount,
   loginAccount,
   registerAdmin,
   forgetPassword,
-  resetPassword
+  resetPassword,
 };

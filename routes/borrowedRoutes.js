@@ -8,6 +8,7 @@ const {
   getBorrowedBooks,
   getBorrowedRequest,
   getBorrowedHistory,
+  moveExpiredBooksToHistory,
   deleteBorrowedBook,
   deleteBorrowedRequest,
   deleteBorrowedHistory
@@ -21,6 +22,7 @@ const router = express.Router();
 router.post("/", authenticateToken, createBorrowRequest);
 router.put("/update/:id", authenticateToken, updateBorrowRequestStatus);
 router.get("/borrowed-books", authenticateToken, getAllBorrowedBooks);
+router.get("/move-expired/:id", authenticateToken, moveExpiredBooksToHistory);
 router.get("/borrowed-requests", authenticateToken, getAllBorrowedRequests);
 router.get("/borrowed-history", authenticateToken, getAllBorrowedHistory);
 router.get("/borrowed-books/:id", authenticateToken, getBorrowedBooks);
