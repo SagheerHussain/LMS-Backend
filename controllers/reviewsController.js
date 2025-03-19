@@ -2,15 +2,59 @@ const Review = require("../modals/reviewsModal");
 const Book = require("../modals/bookModal");
 
 // Get Reviews
+const getReviews = async (req, res) => {
+  try {
+    const reviews = await Review.find();
+    res.status(200).json({
+      success: true,
+      message: "Reviews retrieved successfully",
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Get Reviews By Book
 const getReviewByBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
     const reviews = await Review.find({ book: book._id })
       .populate("book")
       .populate("student");
-    res.status(200).json(reviews);
+    res.status(200).json({
+      success: true,
+      message: "Reviews retrieved successfully",
+      reviews,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Get Approved Review
+const getApprovedReviews = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    const reviews = await Review.find({ book: book._id, status: "Approved" })
+      .populate("book")
+      .populate("student");
+    res.status(200).json({
+      success: true,
+      message: "Reviews retrieved successfully",
+      reviews,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
@@ -26,93 +70,79 @@ const createReview = async (req, res) => {
       review,
     });
 
-    res.status(201).json(newReview);
+    res.status(200).json({
+      success: true,
+      message: "Review created successfully",
+      review: newReview,
+    });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 
 // create Review
 const updateReview = async (req, res) => {
   try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status)
+      return res
+        .status(400)
+        .json({ success: false, message: "Status is required" });
+
     const updateReview = await Review.findByIdAndUpdate(
-      req.params.id,
-      req.body,
+      { _id: id },
+      { status },
       {
         new: true,
       }
     );
 
     if (!updateReview)
-      return res.status(404).json({ message: "Review not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Review not found" });
 
     res
       .status(200)
-      .json({ message: "Review updated successfully", review: updateReview });
-  } catch (error) {
-    res.status(500).json(error);
-  }
-};
-
-const approveReview = async (req, res) => {
-  try {
-    const { status } = req.body;
-    if (status === "Approved") {
-      const approveReview = await Review.findByIdAndUpdate(
-        req.params.id,
-        { status: "Approved" },
-        { new: true }
-      );
-
-      if (!approveReview)
-        return res.status(404).json({ message: "Review not found" });
-
-      res.status(200).json({
+      .json({
         success: true,
-        message: "Review approved successfully",
-        review: approveReview,
+        message: "Review updated successfully",
+        review: updateReview,
       });
-    }
-
-    if (status === "Rejected") {
-      const rejectReview = await Review.findByIdAndUpdate(
-        req.params.id,
-        { status: "Rejected" },
-        { new: true }
-      );
-
-      if (!rejectReview)
-        return res.status(404).json({ message: "Review not found" });
-
-      res.status(200).json({
-        success: true,
-        message: "Review rejected successfully",
-        review: rejectReview,
-      });
-    }
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 // Delete Review
 const deleteReview = async (req, res) => {
   try {
-    const deleteReview = await Review.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+    const deleteReview = await Review.findByIdAndDelete({ _id: id });
 
     if (!deleteReview)
-      return res.status(404).json({ message: "Review not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Review not found" });
 
-    res.status(200).json({ message: "Review deleted successfully" });
+    res
+      .status(200)
+      .json({ success: true, message: "Review deleted successfully" });
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
 module.exports = {
+  getReviews,
   getReviewByBook,
+  getApprovedReviews,
   createReview,
-  approveReview,
   updateReview,
   deleteReview,
 };
