@@ -14,8 +14,8 @@ router.get("/approved/review/:id", authenticateToken, getApprovedReviews);
 
 router.post("/", authenticateToken, createReview);
 
-router.put("/update/:id", updateReview);
+router.put("/update/:id", authenticateToken, updateReview);
 
-router.delete("/delete/:id", deleteReview);
+router.delete("/delete/:id", authenticateToken, deleteReview);
 
 module.exports = router;

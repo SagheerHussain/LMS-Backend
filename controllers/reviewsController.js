@@ -4,7 +4,7 @@ const Book = require("../modals/bookModal");
 // Get Reviews
 const getReviews = async (req, res) => {
   try {
-    const reviews = await Review.find();
+    const reviews = await Review.find().populate("book").populate("student");
     res.status(200).json({
       success: true,
       message: "Reviews retrieved successfully",
