@@ -6,6 +6,7 @@ const {
     addCategory,
     updateCategory,
     deleteCategory,
+    deleteManyCategories
   } = require("../controllers/categoryController");
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.put("/update/:id", updateCategory);
 
 // Delete Category
 router.delete("/delete/:id", deleteCategory);
+
+// Delete Many Categories
+router.delete("/delete-many", deleteManyCategories);
 
 module.exports = router

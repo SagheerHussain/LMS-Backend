@@ -148,6 +148,24 @@ const deleteStudentAccount = async (req, res) => {
   }
 };
 
+// ✅ **9. Delete Many Books by IDs**
+const deleteManyStudents = async (req, res) => {
+  try {
+    const ids = req.query.ids.split(","); // Convert query string to array
+    console.log(ids);
+    if (!ids || ids.length === 0) {
+      return res.status(400).json({ message: "No IDs provided" });
+    }
+
+    await Student.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Students deleted successfully", success: true });
+  } catch (error) {
+    console.error("Error deleting students:", error);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
 module.exports = {
   getStudents,
   getStudentsLength,
@@ -157,4 +175,5 @@ module.exports = {
   updateStudentProfile,
   deleteStudentAccount,
   updateAccountRequestStatus,
+  deleteManyStudents,
 };

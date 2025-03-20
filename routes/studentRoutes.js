@@ -7,7 +7,8 @@ const {
   updateStudentProfile,
   deleteStudentAccount,
   updateAccountRequestStatus,
-  getAccountRequests
+  getAccountRequests,
+  deleteManyStudents
 } = require("../controllers/studentController");
 
 const { authenticateToken } = require("../middleware/auth");
@@ -28,5 +29,6 @@ router.put("/update/:id",  upload.fields([
   { name: "profilePicture", maxCount: 1 },
 ]), updateStudentProfile);
 router.delete("/delete/:id", deleteStudentAccount);
+router.delete("/delete-many", deleteManyStudents);
 
 module.exports = router;

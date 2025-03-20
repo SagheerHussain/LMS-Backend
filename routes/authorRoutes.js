@@ -6,6 +6,7 @@ const {
   addAuthor,
   updateAuthor,
   deleteAuthor,
+  deleteManyAuthors,
 } = require("../controllers/authorController");
 
 const router = express.Router();
@@ -24,5 +25,8 @@ router.put("/update/:id", updateAuthor);
 
 // Delete Author
 router.delete("/delete/:id", deleteAuthor);
+
+// Delete Many Authors
+router.delete("/delete-many", deleteManyAuthors);
 
 module.exports = router;

@@ -1,6 +1,14 @@
 const express = require("express");
 
-const { getReviews, getApprovedReviews, createReview, updateReview, getReviewByBook, deleteReview } = require("../controllers/reviewsController");
+const {
+  getReviews,
+  getApprovedReviews,
+  createReview,
+  updateReview,
+  getReviewByBook,
+  deleteReview,
+  deleteManyReviews,
+} = require("../controllers/reviewsController");
 
 const router = express.Router();
 
@@ -17,5 +25,7 @@ router.post("/", authenticateToken, createReview);
 router.put("/update/:id", authenticateToken, updateReview);
 
 router.delete("/delete/:id", authenticateToken, deleteReview);
+
+router.delete("/delete-many", authenticateToken, deleteManyReviews);
 
 module.exports = router;

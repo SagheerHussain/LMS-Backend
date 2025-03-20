@@ -50,10 +50,28 @@ const deleteAuthor = async (req, res) => {
   }
 };
 
+const deleteManyAuthors = async (req, res) => {
+  try {
+    const ids = req.query.ids.split(","); // Convert query string to array
+    console.log(ids);
+    if (!ids || ids.length === 0) {
+      return res.status(400).json({ message: "No IDs provided" });
+    }
+
+    await Author.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Authors deleted successfully", success: true });
+  } catch (error) {
+    console.error("Error deleting authors:", error);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
 module.exports = {
   getAuthors,
   getAuthorById,
   addAuthor,
   updateAuthor,
   deleteAuthor,
+  deleteManyAuthors,
 };

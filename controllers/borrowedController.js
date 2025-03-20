@@ -294,6 +294,24 @@ const deleteBorrowedHistory = async (req, res) => {
   }
 };
 
+// Delete Many Borrowed Requests by IDs
+const deleteManyBorrowedRequests = async (req, res) => {
+  try {
+    const ids = req.query.ids.split(","); // Convert query string to array
+    console.log(ids);
+    if (!ids || ids.length === 0) {
+      return res.status(400).json({ message: "No IDs provided" });
+    }
+
+    await BorrowedRequest.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Borrowed requests deleted successfully", success: true });
+  } catch (error) {
+    console.error("Error deleting borrowed requests:", error);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
 module.exports = {
   createBorrowRequest,
   updateBorrowRequestStatus,
@@ -308,4 +326,5 @@ module.exports = {
   deleteBorrowedBook,
   deleteBorrowedRequest,
   deleteBorrowedHistory,
+  deleteManyBorrowedRequests,
 };

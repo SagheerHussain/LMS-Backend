@@ -138,6 +138,24 @@ const deleteReview = async (req, res) => {
   }
 };
 
+// ✅ **9. Delete Many Books by IDs**
+const deleteManyReviews = async (req, res) => {
+  try {
+    const ids = req.query.ids.split(","); // Convert query string to array
+    console.log(ids);
+    if (!ids || ids.length === 0) {
+      return res.status(400).json({ message: "No IDs provided" });
+    }
+
+    await Review.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({ message: "Reviews deleted successfully", success: true });
+  } catch (error) {
+    console.error("Error deleting reviews:", error);
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
 module.exports = {
   getReviews,
   getReviewByBook,
@@ -145,4 +163,5 @@ module.exports = {
   createReview,
   updateReview,
   deleteReview,
+  deleteManyReviews,
 };

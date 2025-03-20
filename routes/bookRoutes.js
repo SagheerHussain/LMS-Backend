@@ -11,6 +11,7 @@ const {
   addBook,
   updateBook,
   deleteBook,
+  deleteManyBooks,
 } = require("../controllers/bookController");
 
 const router = express.Router();
@@ -41,5 +42,8 @@ router.put("/update/:id", upload.single("image"), updateBook);
 
 // Delete Book
 router.delete("/delete/:id", deleteBook);
+
+// Delete Many Books
+router.delete("/delete-many", deleteManyBooks);
 
 module.exports = router;
