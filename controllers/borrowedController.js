@@ -134,7 +134,7 @@ const getBorrowedBooks = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedBooks"
-    );
+    ).populate("student").populate("book");
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
@@ -154,7 +154,7 @@ const getBorrowedRequest = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedRequests"
-    );
+    ).populate("student").populate("book");
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
@@ -236,7 +236,7 @@ const getBorrowedHistory = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedHistory"
-    );
+    ).populate("student").populate("book");
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
