@@ -134,13 +134,16 @@ const getBorrowedBooks = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedBooks"
-    ).populate("student").populate("book");
+    );
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-    const borrowedBooks = await BorrowedBook.find({ student: id }).populate(
-      "book"
-    );
+    const borrowedBooks = await BorrowedBook.find({ student: id }).populate({
+      path: "book",
+      populate: {
+        path: "category", // This is the category reference inside book
+      },
+    });
 
     res.status(200).json({ data: borrowedBooks, message: "Borrowed Books" });
   } catch (error) {
@@ -154,7 +157,7 @@ const getBorrowedRequest = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedRequests"
-    ).populate("student").populate("book");
+    );
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
@@ -236,13 +239,18 @@ const getBorrowedHistory = async (req, res) => {
     const { id } = req.params;
     const student = await Student.findById({ _id: id }).populate(
       "borrowedHistory"
-    ).populate("student").populate("book");
+    );
 
     if (!student) return res.status(404).json({ message: "Student not found" });
 
     const borrowedHistory = await BorrowedHistory.find({
       student: id,
-    }).populate("book");
+    }).populate({
+      path: "book",
+      populate: {
+        path: "category", // This is the category reference inside book
+      },
+    });
 
     res
       .status(200)
@@ -305,7 +313,12 @@ const deleteManyBorrowedRequests = async (req, res) => {
 
     await BorrowedRequest.deleteMany({ _id: { $in: ids } });
 
-    res.status(200).json({ message: "Borrowed requests deleted successfully", success: true });
+    res
+      .status(200)
+      .json({
+        message: "Borrowed requests deleted successfully",
+        success: true,
+      });
   } catch (error) {
     console.error("Error deleting borrowed requests:", error);
     res.status(500).json({ message: "Internal Server Error", success: false });
