@@ -9,7 +9,8 @@ const app = express();
 // Allowed Origins
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://library-management-system-nu-fawn.vercel.app"
+  "https://library-management-system-nu-fawn.vercel.app",
+  "https://library.skynetsilicon.com"
 ];
 
 // Middlewares
