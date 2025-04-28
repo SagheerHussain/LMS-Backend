@@ -21,20 +21,19 @@ const createAccount = async (req, res) => {
     if (isExist)
       res.json({ message: "A user with this email is already exist" });
 
-    await bcrypt.genSalt(10, async (err, salt) => {
-      await bcrypt.hash(password, salt, async (err, hash) => {
-        const newUser = await Student.create({
-          name,
-          email,
-          password: hash,
-          universityId,
-          universityIdCardImage: universityIdCardImagePath.url,
-          profilePicture: profilePicturePath.url,
-          universityName,
-        });
-        res.json({ success: true, user: newUser });
-      });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const newUser = await Student.create({
+      name,
+      email,
+      password: hashedPassword,
+      universityId,
+      universityIdCardImage: universityIdCardImagePath.url,
+      profilePicture: profilePicturePath.url,
+      universityName,
     });
+    res.json({ success: true, user: newUser });
   } catch (error) {
     console.log(error);
   }
@@ -126,12 +125,10 @@ const forgetPassword = async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
-    res
-      .status(200)
-      .json({
-        message: "Verification Link Has Been Send To Your Email",
-        success: true,
-      });
+    res.status(200).json({
+      message: "Verification Link Has Been Send To Your Email",
+      success: true,
+    });
   } catch (error) {
     res.status(404).json({ message: "Something Went Wrong", success: false });
   }
@@ -155,12 +152,10 @@ const resetPassword = async (req, res) => {
         { password: newpassword }
       );
       updatedUser.save();
-      res
-        .status(200)
-        .json({
-          message: "Password Has Been Saved Succcessfully",
-          success: true,
-        });
+      res.status(200).json({
+        message: "Password Has Been Saved Succcessfully",
+        success: true,
+      });
     } else {
       res.status(200).json({ message: "User not found", success: false });
     }
